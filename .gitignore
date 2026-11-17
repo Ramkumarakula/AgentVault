@@ -1,0 +1,23 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# node / hardhat
+node_modules/
+artifacts/
+cache/
+coverage/
+coverage.json
+typechain-types/
+ignition/deployments/chain-31337/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+
+# misc
+.DS_Store
+Thumbs.db
+~$*.docx
