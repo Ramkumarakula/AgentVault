@@ -1,0 +1,51 @@
+========================================================================
+ AgentVault demo - on-chain spending policy for an AI agent
+========================================================================
+Network : hardhat (chainId 31337)
+Owner   : 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  (human)
+Agent   : 0x70997970C51812dc3A010C7d01b50e0d17dc79C8  (AI agent hot key)
+Payee   : 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC  (allowlisted service)
+Stranger: 0x1574658D75C444A89c246A97D753ab60372c6f38  (NOT allowlisted)
+------------------------------------------------------------------------
+SETUP (owner)
+  ✓ deployed MockUSDC   0x5FbDB2315678afecb367f032d93F642f64180aa3
+  ✓ deployed AgentVault 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+  ✓ mint 1000.0 mUSDC test tokens to owner (TEST TOKEN, NO VALUE)
+      tx (local tx 0xc1739d5a20e44cca5b7677d439556f829359f1d8d501b15c214c1e3f968c8da6)  (gas used 70654)
+  ✓ approve vault to pull 1000.0 mUSDC
+      tx (local tx 0xb53dc8096ddea91804b99586fa5e0aa39b17dd95c5f0518a40571086218fc1ae)  (gas used 46330)
+  ✓ deposit 1000.0 mUSDC into vault
+      tx (local tx 0xbc941b0f31941d95b6374b1aa090ed14c8f3d6de399f45d8172e0a472352ce4c)  (gas used 54504)
+  ✓ setAgentPolicy(perTx 100.0 mUSDC, daily 250.0 mUSDC, approval > 50.0 mUSDC, expires in 7 days)
+      tx (local tx 0x55768a6e75301860069eb2610a7aafcf7d6874811792e404c76213b4fd5f60a0)  (gas used 94524)
+  ✓ setPayee(agent, payee, true)
+      tx (local tx 0xf20700c8c4b1d92bc617b2683ac398566714b7165c26967257625bb86da98b0d)  (gas used 48901)
+------------------------------------------------------------------------
+  [before] vault 1000.0 mUSDC | payee 0.0 mUSDC | stranger 0.0 mUSDC | agent window left 250.0 mUSDC
+
+(1) Agent pays 20.0 mUSDC to the allowlisted payee (<= threshold, auto-executes)
+  ✓ pay() mined
+      tx (local tx 0x7c5141c4b49fb220fc0dcd3d57decaea48df10836424fb28fde708c252e34915)  (gas used 190419)
+      event PaymentExecuted(id=0, amount=20.0 mUSDC, memo="API credits for weather data")
+
+(2) Agent tries to pay 10.0 mUSDC to a NON-allowlisted address
+  ✓ rejected by contract: PayeeNotAllowed(0x70997970C51812dc3A010C7d01b50e0d17dc79C8, 0x1574658D75C444A89c246A97D753ab60372c6f38)
+
+(3) Agent tries to pay 150.0 mUSDC (> perTx limit 100.0 mUSDC)
+  ✓ rejected by contract: ExceedsPerTxLimit(150000000, 100000000)
+
+(4) Agent requests 80.0 mUSDC (> approval threshold 50.0 mUSDC)
+  ✓ pay() mined
+      tx (local tx 0x483f9e3d8dcdc443cf6d68c683b24e781111d326e4fc728c9cf0c22e562e4418)  (gas used 134781)
+      event PaymentRequested(id=1) -> status Pending, nothing transferred yet
+  [while pending] vault 980.0 mUSDC | payee 20.0 mUSDC | stranger 0.0 mUSDC | agent window left 230.0 mUSDC
+    Human owner reviews request #1 and approves it (policy is re-checked on-chain)
+  ✓ approveRequest(1)
+      tx (local tx 0x139e1db9a349f03fed70442ab0c7613084cab4a01cd6324c5c014bdb8343c588)  (gas used 76061)
+      request #1 status -> Executed
+------------------------------------------------------------------------
+  [after] vault 900.0 mUSDC | payee 100.0 mUSDC | stranger 0.0 mUSDC | agent window left 150.0 mUSDC
+  requests stored on-chain: 2
+========================================================================
+ Demo finished: 2 payments executed, 2 rejected by policy, 1 needed human approval.
+========================================================================

@@ -1,0 +1,27 @@
+'npx hardhat clean' running (wd: E:\AgentVault)
+'npx hardhat clean --global' running (wd: E:\AgentVault)
+'npx hardhat compile --force' running (wd: E:\AgentVault)
+INFO:Detectors:
+AgentVault.setAgentPolicy(address,uint128,uint128,uint128,uint64) (contracts/AgentVault.sol#140-166) uses timestamp for comparisons
+	Dangerous comparisons:
+	- expiry <= block.timestamp (contracts/AgentVault.sol#151)
+AgentVault.remainingInWindow(address) (contracts/AgentVault.sol#317-322) uses timestamp for comparisons
+	Dangerous comparisons:
+	- ! p.active || block.timestamp > p.expiry (contracts/AgentVault.sol#319)
+	- block.timestamp >= uint256(p.windowStart) + WINDOW_DURATION (contracts/AgentVault.sol#320)
+AgentVault._checkAgent(address,AgentVault.AgentPolicy,address) (contracts/AgentVault.sol#329-333) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > p.expiry (contracts/AgentVault.sol#331)
+AgentVault._consumeWindow(AgentVault.AgentPolicy,uint128) (contracts/AgentVault.sol#337-345) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp >= uint256(p.windowStart) + WINDOW_DURATION (contracts/AgentVault.sol#338)
+AgentVault._pendingRequest(uint256) (contracts/AgentVault.sol#359-363) uses timestamp for comparisons
+	Dangerous comparisons:
+	- id >= requests.length (contracts/AgentVault.sol#360)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+Pragma version0.8.28 (contracts/AgentVault.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.8.18.
+Pragma version0.8.28 (contracts/MockUSDC.sol#2) necessitates a version too recent to be trusted. Consider deploying with 0.8.18.
+solc-0.8.28 is not recommended for deployment
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#incorrect-versions-of-solidity
+INFO:Slither:. analyzed (17 contracts with 85 detectors), 8 result(s) found

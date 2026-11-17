@@ -1,0 +1,74 @@
+Compiled 16 Solidity files successfully (evm target: cancun).
+
+
+  MockUSDC
+    ✔ has name, symbol and 6 decimals (826ms)
+    ✔ only the owner can mint
+
+  AgentVault
+    deployment
+      ✔ sets token and owner
+      ✔ rejects the zero token address
+      ✔ renounceOwnership is disabled (would lock funds)
+    deposit
+      ✔ anyone can deposit; emits Deposited and moves tokens
+      ✔ rejects zero amount
+      ✔ reverts without allowance
+    withdraw
+      ✔ owner can withdraw; emits Withdrawn
+      ✔ non-owner cannot withdraw
+      ✔ validates recipient, amount and balance
+      ✔ still works while paused (owner rescue)
+    setAgentPolicy
+      ✔ stores the policy and emits AgentPolicySet
+      ✔ rejects zero agent
+      ✔ rejects threshold > perTx, perTx > daily, perTx == 0
+      ✔ accepts equal limits (threshold == perTx == daily)
+      ✔ rejects expiry in the past or now
+      ✔ non-owner cannot set a policy
+      ✔ updating a policy keeps current window usage (no free reset)
+      ✔ lowering dailyLimit below spent blocks further spending (no underflow)
+    payee allowlist
+      ✔ setPayee emits PayeeSet and toggles the mapping
+      ✔ rejects zero agent, zero payee and the vault itself
+      ✔ non-owner cannot set payees
+      ✔ pay to a non-allowlisted address reverts
+      ✔ allowlists are per agent
+    pay: under threshold (auto-execute)
+      ✔ executes immediately, records request, emits PaymentExecuted
+      ✔ returns the request id (static call)
+      ✔ rejects zero amount and too-long memo; accepts exactly 140 bytes
+      ✔ reverts when the vault balance is insufficient
+    pay: limits
+      ✔ per-transaction limit
+      ✔ huge amounts (> uint128) revert cleanly with ExceedsPerTxLimit
+      ✔ daily limit
+      ✔ window resets after 24h (time travel)
+    expiry, revoke, pause
+      ✔ agent cannot spend after expiry (time travel)
+      ✔ revoked agent cannot pay; revoke emits; double revoke reverts
+      ✔ non-owner cannot revoke
+      ✔ unknown address is not an agent
+      ✔ pause blocks pay; unpause restores; only owner can pause
+    approval flow (human-in-the-loop)
+      ✔ over threshold -> Pending, no transfer, emits PaymentRequested
+      ✔ threshold boundary: amount == threshold executes immediately
+      ✔ owner approves -> Executed, tokens move, events emitted (73ms)
+      ✔ cannot approve twice, approve a rejected one, or a missing id
+      ✔ owner rejects -> Rejected, no transfer; cannot approve after
+      ✔ only the owner can approve or reject
+      ✔ re-check at approval: agent revoked after request
+      ✔ re-check at approval: agent expired
+      ✔ re-check at approval: payee removed from allowlist
+      ✔ re-check at approval: perTxLimit lowered
+      ✔ re-check at approval: daily window already used up
+      ✔ re-check at approval: insufficient vault balance
+      ✔ approve is blocked while paused; reject still works
+    reentrancy
+      ✔ a malicious token re-entering pay() during transfer is blocked by nonReentrant (67ms)
+    property-style: random amounts never exceed dailyLimit per window
+      ✔ 300 random payments/approvals across random time jumps (1722ms)
+
+
+  53 passing (3s)
+
